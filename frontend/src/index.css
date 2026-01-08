@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #f9d16d;
+  --color-primary-dark: #f6a11a;
+  --color-primary-light: #f0db9e;
+  --color-secondary: #dedec2;
+
+  --font-sans: "Mulish", sans-serif;
+  --font-mono: "Roboto", monospace;
+
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-500: #6b7280;
+  --color-gray-800: #1f2937;
+}
+
+/* Глобальные стили */
+body {
+  @apply font-sans text-gray-800 bg-white min-h-screen flex flex-col;
+}
+
+#root {
+  @apply w-full flex-1 flex flex-col;
+}
+
+/* Анимации переходов страниц */
+.fade-enter {
+  opacity: 0;
+  transform: translateX(100%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.fade-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.fade-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transform: translateX(-100%);
+  transition: opacity 300ms ease-in, transform 300ms ease-in;
+}
+
+/* Анимация Alert */
+.alert-enter {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+.alert-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+.alert-exit {
+  opacity: 1;
+}
+.alert-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms, transform 300ms;
+}
