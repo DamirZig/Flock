@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getMe, logoutUser } from '../api/client';
 import type { User } from '../api/client';
 
@@ -15,33 +16,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+    const queryClient = useQueryClient();
 
-    const checkAuth = async () => {
-        try {
-            // Try to fetch user. If cookie exists and is valid, this succeeds.
-            const userData = await getMe();
-            setUser(userData);
-            setIsAuthenticated(true);
-        } catch (error) {
-            // Not authenticated or session expired
-            setIsAuthenticated(false);
-            setUser(null);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const { data: user, isLoading, refetch } = useQuery({
+        queryKey: ['me'],
+        queryFn: getMe,
+        retry: false,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
 
-    useEffect(() => {
-        checkAuth();
-    }, []);
+    const isAuthenticated = !!user;
 
     const login = () => {
-        setIsAuthenticated(true); // Optimistic update or wait for checkAuth?
-        // Ideally verify with specific call or just re-fetch me
-        checkAuth();
+        refetch();
     };
 
     const logout = async () => {
@@ -50,13 +37,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } catch (error) {
             console.error("Logout failed", error);
         }
-        localStorage.removeItem('currentPage'); // Clear page persistence
-        setIsAuthenticated(false);
-        setUser(null);
+        localStorage.removeItem('currentPage');
+        queryClient.setQueryData(['me'], null);
+    };
+
+    const setUser = (userData: User | null) => {
+        queryClient.setQueryData(['me'], userData);
     };
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, isLoading, login, logout, setUser }}>
+        <AuthContext.Provider value={{ user: user ?? null, isAuthenticated, isLoading, login, logout, setUser }}>
             {children}
         </AuthContext.Provider>
     );

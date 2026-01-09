@@ -8,12 +8,23 @@ import { DashboardPage } from './pages/DashboardPage';
 import { AdminPage } from './pages/AdminPage';
 import { CookieConsent } from './components/ui/CookieConsent';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) return <div>Loading...</div>; // Simplistic loading, can be improved
+  // Пока идет загрузка, разрешаем рендер (страница сама покажет Skeleton)
+  if (isLoading) return children;
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -26,7 +37,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
 
-  if (isLoading) return <div>Loading...</div>;
+  // Пока идет загрузка, разрешаем рендер
+  if (isLoading) return children;
 
   if (!isAuthenticated || user?.role !== 'admin') {
     return <Navigate to="/" replace />;
@@ -109,14 +121,16 @@ const PageTransition = ({ children }: { children: React.ReactNode }) => (
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="relative w-full min-h-screen overflow-hidden bg-white">
-          <AnimatedRoutes />
-          <CookieConsent />
-        </div>
-      </BrowserRouter>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="relative w-full min-h-screen overflow-hidden bg-white">
+            <AnimatedRoutes />
+            <CookieConsent />
+          </div>
+        </BrowserRouter>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 

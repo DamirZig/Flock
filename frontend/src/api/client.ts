@@ -15,6 +15,9 @@ export interface AuthResponse {
 
 // Generic request helper to handle fetch, headers, and errors
 async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds timeout
+
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -23,30 +26,34 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   const config: RequestInit = {
     ...options,
     headers,
-    credentials: 'include', // Essential for sending/receiving cookies across origins if needed (or same origin)
+    credentials: 'include',
+    signal: controller.signal,
   };
 
-  let response: Response;
   try {
-    response = await fetch(`${API_URL}${endpoint}`, config);
-  } catch (error) {
-    console.error(`Network error at ${endpoint}:`, error);
-    throw new Error('Не удалось подключиться к серверу. Проверьте соединение.');
-  }
+    const response = await fetch(`${API_URL}${endpoint}`, config);
+    clearTimeout(timeoutId);
 
-  if (!response.ok) {
-    let errorMessage = 'Произошла ошибка';
-    try {
-      const errorData = await response.json();
-      errorMessage = errorData.detail || errorMessage;
-    } catch {
-      // Response is not JSON or empty
+    if (!response.ok) {
+      let errorMessage = 'Произошла ошибка';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.detail || errorMessage;
+      } catch {
+        // Response is not JSON or empty
+      }
+      throw new Error(errorMessage);
     }
 
-    throw new Error(errorMessage);
+    return response.json();
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Сервер не отвечает. Превышено время ожидания.');
+    }
+    if (error instanceof Error) throw error;
+    throw new Error('Не удалось подключиться к серверу. Проверьте соединение.');
   }
-
-  return response.json();
 }
 
 export const registerUser = (user: User) => {

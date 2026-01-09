@@ -6,19 +6,19 @@ import { DashboardLayout } from '../layouts/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { ProfileCard } from '../components/dashboard/ProfileCard';
 import { StatsOverview } from '../components/dashboard/StatsOverview';
+import { DashboardSkeleton } from '../components/dashboard/DashboardSkeleton';
 
 export const DashboardPage: React.FC = () => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50/50">
+      <DashboardLayout>
         <GridBackground />
-        <div className="relative z-10 flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          <span className="text-gray-500 font-medium">Загрузка...</span>
+        <div className="relative z-10 pt-8 mt-20"> {/* Match layout padding/margin */}
+          <DashboardSkeleton />
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
