@@ -28,7 +28,7 @@ class Settings(BaseSettings):
         Determines if cookies should be Secure (HTTPS only).
         True in production, False in development.
         """
-        return self.ENVIRONMENT.lower() == "production"
+        return self.ENVIRONMENT.lower() == "development"
 
     def __init__(self, **values):
         super().__init__(**values)
