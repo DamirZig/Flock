@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: flock_db
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: mysql+pymysql://gs324819:ea5mlfsF6WYu@164.132.206.179/gs324819
+      SECRET_KEY: "7KTYz3u3CGS5VBxtDcF5X2uW5w0W9gliCv0Nu-viQVY"
+      ENVIRONMENT: "production"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:8080"
+    environment:
+      VITE_API_URL: http://85.198.100.22:8000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
