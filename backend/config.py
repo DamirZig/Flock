@@ -17,10 +17,7 @@ class Settings(BaseSettings):
     
     # CORS
     # In .env, this can be a comma-separated string: "http://localhost:5173,https://myapp.com"
-    CORS_ORIGINS: List[str] = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173"
-    ]
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173"
     
     @property
     def SECURE_COOKIES(self) -> bool:

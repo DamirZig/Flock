@@ -9,7 +9,7 @@ from routers import auth, users, admin
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # Настройка CORS
-origins = settings.CORS_ORIGINS
+origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",")]
 
 app.add_middleware(
     CORSMiddleware,
