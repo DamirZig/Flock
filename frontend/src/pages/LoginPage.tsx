@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Alert } from '../components/ui/Alert';
@@ -8,13 +9,8 @@ import { Logo } from '../components/ui/Logo';
 import { GridBackground } from '../components/ui/GridBackground';
 import { useAuth } from '../context/AuthContext';
 
-interface LoginPageProps {
-  onRegister: () => void;
-  onLoginSuccess?: () => void;
-  onBack: () => void;
-}
-
-export const LoginPage: React.FC<LoginPageProps> = ({ onRegister, onLoginSuccess, onBack }) => {
+export const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,8 +41,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onRegister, onLoginSuccess
         isVisible: true
       });
 
-      if (onLoginSuccess) {
-        setTimeout(onLoginSuccess, 1000);
+      if (true) { // removed onLoginSuccess check as logic is internal now
+        setTimeout(() => navigate('/dashboard'), 1000);
       }
     } catch (error: any) {
       setAlert({
@@ -77,7 +73,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onRegister, onLoginSuccess
         />
 
         <div className="flex flex-col items-center mb-8">
-          <div onClick={onBack} className="cursor-pointer hover:opacity-80 transition-opacity mb-6">
+          <div onClick={() => navigate('/')} className="cursor-pointer hover:opacity-80 transition-opacity mb-6">
             <Logo />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 text-center">
@@ -125,7 +121,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onRegister, onLoginSuccess
         <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
           <span>Ещё нет аккаунта?</span>
           <button
-            onClick={onRegister}
+            onClick={() => navigate('/register')}
             className="font-bold text-gray-900 hover:text-primary transition-colors"
           >
             Создать аккаунт

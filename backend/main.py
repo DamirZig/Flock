@@ -3,15 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from database import engine
 import models
+from config import settings
 from routers import auth, users
 
-app = FastAPI()
+app = FastAPI(title=settings.PROJECT_NAME)
 
 # Настройка CORS
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+origins = settings.CORS_ORIGINS
 
 app.add_middleware(
     CORSMiddleware,

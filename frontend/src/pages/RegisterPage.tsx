@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Alert } from '../components/ui/Alert';
@@ -7,12 +8,8 @@ import { registerUser } from '../api/client';
 import { Logo } from '../components/ui/Logo';
 import { GridBackground } from '../components/ui/GridBackground';
 
-interface RegisterPageProps {
-  onLogin: () => void;
-  onBack: () => void;
-}
-
-export const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin, onBack }) => {
+export const RegisterPage: React.FC = () => {
+  const navigate = useNavigate();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -47,8 +44,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin, onBack }) =
         message: 'Аккаунт успешно создан!',
         isVisible: true
       });
+      setAlert({
+        type: 'success',
+        message: 'Аккаунт успешно создан!',
+        isVisible: true
+      });
       setTimeout(() => {
-        onLogin();
+        navigate('/login');
       }, 1500);
     } catch (error: any) {
       setAlert({
@@ -79,7 +81,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin, onBack }) =
         />
 
         <div className="flex flex-col items-center mb-8">
-          <div onClick={onBack} className="cursor-pointer hover:opacity-80 transition-opacity mb-6">
+          <div onClick={() => navigate('/')} className="cursor-pointer hover:opacity-80 transition-opacity mb-6">
             <Logo />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 text-center">
@@ -135,7 +137,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ onLogin, onBack }) =
         <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
           <span>Уже есть аккаунт?</span>
           <button
-            onClick={onLogin}
+            onClick={() => navigate('/login')}
             className="font-bold text-gray-900 hover:text-primary transition-colors"
           >
             Войти

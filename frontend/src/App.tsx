@@ -1,142 +1,121 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { WelcomePage } from './pages/WelcomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { AdminPage } from './pages/AdminPage';
 import { CookieConsent } from './components/ui/CookieConsent';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
-type Page = 'welcome' | 'login' | 'register' | 'dashboard';
+// Protected Route Component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, isLoading } = useAuth();
 
-function AppContent() {
+  if (isLoading) return <div>Loading...</div>; // Simplistic loading, can be improved
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+// Admin Route Component
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
+// Animated Routes Wrapper
+const AnimatedRoutes = () => {
+  const location = useLocation();
   const { isAuthenticated } = useAuth();
 
-  // Initialize state from localStorage or default to 'welcome'
-  const [currentPage, setCurrentPage] = useState<Page>(() => {
-    const savedPage = localStorage.getItem('currentPage');
-    return (savedPage as Page) || 'welcome';
-  });
-
-  // Persist currentPage to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('currentPage', currentPage);
-  }, [currentPage]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      if (currentPage === 'login' || currentPage === 'register') {
-        setCurrentPage('dashboard');
-      }
-    } else {
-      if (currentPage === 'dashboard') {
-        setCurrentPage('welcome');
-      }
-    }
-  }, [isAuthenticated, currentPage]);
-
-  const handleNext = () => {
-    setCurrentPage('login');
-  };
-
-  const handleRegister = () => {
-    if (isAuthenticated) {
-      setCurrentPage('dashboard');
-    } else {
-      setCurrentPage('register');
-    }
-  };
-
-  const handleLogin = () => {
-    setCurrentPage('login');
-  };
-
-  const handleBack = () => {
-    setCurrentPage('welcome');
-  };
-
-  const handleDashboard = () => {
-    setCurrentPage('dashboard');
-  };
-
-  const handleHome = () => {
-    setCurrentPage('welcome');
-  };
-
   return (
-    <div className="relative w-full min-h-screen overflow-hidden bg-white">
-      <AnimatePresence mode="wait">
-        {currentPage === 'welcome' && (
-          <motion.div
-            key="welcome"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="w-full min-h-screen absolute top-0 left-0"
-          >
-            <WelcomePage
-              onNext={handleNext}
-              onRegister={handleRegister}
-              onDashboard={handleDashboard}
-            />
-          </motion.div>
-        )}
-
-        {currentPage === 'login' && (
-          <motion.div
-            key="login"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="w-full min-h-screen absolute top-0 left-0"
-          >
-            <LoginPage
-              onRegister={handleRegister}
-              onBack={handleBack}
-              onLoginSuccess={() => setCurrentPage('dashboard')}
-            />
-          </motion.div>
-        )}
-
-        {currentPage === 'register' && (
-          <motion.div
-            key="register"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="w-full min-h-screen absolute top-0 left-0"
-          >
-            <RegisterPage onLogin={handleLogin} onBack={handleBack} />
-          </motion.div>
-        )}
-
-        {currentPage === 'dashboard' && (
-          <motion.div
-            key="dashboard"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="w-full min-h-screen absolute top-0 left-0"
-          >
-            <DashboardPage onHome={handleHome} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Cookie Consent Banner */}
-      <CookieConsent />
-    </div>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route
+          path="/"
+          element={
+            <PageTransition>
+              <WelcomePage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> :
+              <PageTransition>
+                <LoginPage />
+              </PageTransition>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" replace /> :
+              <PageTransition>
+                <RegisterPage />
+              </PageTransition>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <PageTransition>
+                <DashboardPage />
+              </PageTransition>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <PageTransition>
+                <AdminPage />
+              </PageTransition>
+            </AdminRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AnimatePresence>
   );
-}
+};
+
+const PageTransition = ({ children }: { children: React.ReactNode }) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.3 }}
+    className="w-full min-h-screen absolute top-0 left-0"
+  >
+    {children}
+  </motion.div>
+);
 
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <BrowserRouter>
+        <div className="relative w-full min-h-screen overflow-hidden bg-white">
+          <AnimatedRoutes />
+          <CookieConsent />
+        </div>
+      </BrowserRouter>
     </AuthProvider>
   );
 }

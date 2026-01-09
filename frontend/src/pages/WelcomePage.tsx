@@ -7,17 +7,12 @@ import { Logo } from '../components/ui/Logo';
 import chimiLogo from '../assets/chimi.png';
 import { useAuth } from '../context/AuthContext';
 
-interface WelcomePageProps {
-  onNext: () => void;
-  onRegister: () => void;
-  onDashboard?: () => void;
-}
+import { useNavigate } from 'react-router-dom';
 
-export const WelcomePage: React.FC<WelcomePageProps> = ({
-  onNext,
-  onRegister,
-  onDashboard
-}) => {
+// Props are no longer needed for navigation, but keeping empty interface if we need other props later
+// or just removing it.
+export const WelcomePage: React.FC = () => {
+  const navigate = useNavigate();
   const { isAuthenticated, logout } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -88,7 +83,7 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
                   >
                     <div className="py-2">
                       <button
-                        onClick={() => { setShowMenu(false); onDashboard?.(); }}
+                        onClick={() => { setShowMenu(false); navigate('/dashboard'); }}
                         className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors"
                       >
                         <Icon icon="lucide:layout-dashboard" className="w-5 h-5 text-primary" />
@@ -116,7 +111,7 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
             </div>
           ) : (
             <button
-              onClick={onNext}
+              onClick={() => navigate('/login')}
               className="text-sm font-medium text-gray-500 hover:text-primary transition-colors"
             >
               Войти
@@ -161,7 +156,7 @@ export const WelcomePage: React.FC<WelcomePageProps> = ({
 
             <motion.div variants={item} className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Button
-                onClick={onRegister}
+                onClick={() => navigate('/register')}
                 className="text-lg py-4 px-8 rounded-2xl bg-gray-900 text-white hover:bg-gray-800 shadow-xl shadow-gray-900/10 transform hover:-translate-y-1 transition-all duration-300"
               >
                 Начать бесплатно

@@ -28,7 +28,7 @@ def register(response: Response, user: schemas.UserCreate, db: Session = Depends
         max_age=auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         expires=auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         samesite="lax",
-        secure=False, # Set to True in production (HTTPS)
+        secure=auth.settings.SECURE_COOKIES, 
     )
     
     return new_user
@@ -54,7 +54,7 @@ def login(response: Response, user: schemas.UserLogin, db: Session = Depends(get
         max_age=auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         expires=auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         samesite="lax",
-        secure=False, # Set to True in production (HTTPS)
+        secure=auth.settings.SECURE_COOKIES, 
     )
     
     return {"access_token": access_token, "token_type": "bearer"} # Still return it for client info if needed, but client should ignore
