@@ -5,6 +5,7 @@ import { Input } from '../../components/ui/Input';
 import { Logo } from '../../components/ui/Logo';
 import { GridBackground } from '../../components/ui/GridBackground';
 import { verifyPassword } from '../../api/client';
+import { Icon } from '@iconify/react';
 
 interface AdminAuthProps {
     onVerified: () => void;
@@ -44,31 +45,46 @@ export const AdminAuth: React.FC<AdminAuthProps> = ({ onVerified, onBack }) => {
                     <div onClick={onBack} className="cursor-pointer hover:opacity-80 transition-opacity mb-6">
                         <Logo />
                     </div>
-                    <div className="px-3 py-1 bg-red-50 text-red-600 rounded-full text-xs font-bold uppercase tracking-wider mb-2 border border-red-100">
-                        Admin Security
-                    </div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 border border-red-100 rounded-full mb-4"
+                    >
+                        <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                        <span className="text-xs font-bold text-red-600 uppercase tracking-wider">Admin Security</span>
+                    </motion.div>
+
                     <h2 className="text-2xl font-bold text-gray-900 text-center">
                         Подтвердите личность
                     </h2>
                     <p className="text-gray-500 text-center mt-2">
-                        Введите пароль от вашей учетной записи для входа в панель управления
+                        Введите пароль для входа в панель управления
                     </p>
                 </div>
 
                 <form onSubmit={handleVerify} className="w-full flex flex-col gap-4 mb-6">
                     <div className="space-y-4">
-                        <Input
-                            type="password"
-                            placeholder="Ваш пароль"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="bg-white/50 border-gray-200 focus:border-red-500 focus:ring-red-500/20 h-12"
-                            required
-                        />
+                        <div className="relative">
+                            <Input
+                                type="password"
+                                placeholder="Ваш пароль"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="bg-white/50 border-gray-200 focus:border-red-500 focus:ring-red-500/20 h-12 pl-10"
+                                required
+                            />
+                            <Icon icon="lucide:lock" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        </div>
                         {error && (
-                            <p className="text-red-500 text-xs mt-1 text-center font-medium">
+                            <motion.p
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="text-red-500 text-xs mt-1 text-center font-medium"
+                            >
                                 {error}
-                            </p>
+                            </motion.p>
                         )}
                     </div>
 
@@ -76,17 +92,23 @@ export const AdminAuth: React.FC<AdminAuthProps> = ({ onVerified, onBack }) => {
                         type="submit"
                         fullWidth
                         disabled={isLoading}
-                        className="h-12 text-lg font-bold rounded-xl shadow-lg shadow-red-500/20 hover:shadow-red-500/30 bg-red-600 hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed border-none"
+                        className="h-12 text-lg font-bold rounded-xl shadow-lg shadow-red-500/20 hover:shadow-red-500/30 bg-gray-900 hover:bg-gray-800 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed border-none"
                     >
-                        {isLoading ? 'Проверка...' : 'Войти в админ-панель'}
+                        {isLoading ? (
+                            <div className="flex items-center gap-2">
+                                <Icon icon="line-md:loading-twotone-loop" className="w-5 h-5" />
+                                <span>Проверка...</span>
+                            </div>
+                        ) : 'Войти в админ-панель'}
                     </Button>
                 </form>
 
                 <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
                     <button
                         onClick={onBack}
-                        className="font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                        className="flex items-center gap-1 font-medium text-gray-500 hover:text-gray-900 transition-colors"
                     >
+                        <Icon icon="lucide:arrow-left" className="w-4 h-4" />
                         Вернуться назад
                     </button>
                 </div>
