@@ -18,7 +18,7 @@ export const RegisterPage: React.FC = () => {
   const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string, isVisible: boolean }>({
     type: 'success',
     message: '',
-    isVisible: false
+    isVisible: true
   });
 
   const handleRegister = async (e: React.FormEvent) => {
