@@ -33,3 +33,11 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
     if user is None:
         raise credentials_exception
     return user
+
+def get_current_admin_user(current_user: schemas.User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user doesn't have enough privileges"
+        )
+    return current_user

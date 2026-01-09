@@ -3,11 +3,21 @@ from sqlalchemy.orm import Session
 from datetime import timedelta
 from database import get_db
 import schemas, crud, auth
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from fastapi import Request
+
+# We need to access the limiter instance from the app state or a global dependency
+# For simplicity with the pattern used in main.py, we can re-instantiate or import. 
+# Better pattern: generic dependency. But for now, let's grab it from Request state or just new instance sharing storage (memory).
+# Actually, standard way is:
+limiter = Limiter(key_func=get_remote_address) # It shares state if using in-memory default
 
 router = APIRouter(tags=["auth"])
 
 @router.post("/register", response_model=schemas.User)
-def register(response: Response, user: schemas.UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request: Request, response: Response, user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -34,7 +44,8 @@ def register(response: Response, user: schemas.UserCreate, db: Session = Depends
     return new_user
 
 @router.post("/login", response_model=schemas.Token)
-def login(response: Response, user: schemas.UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(request: Request, response: Response, user: schemas.UserLogin, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if not db_user or not auth.verify_password(user.password, db_user.hashed_password):
         raise HTTPException(
