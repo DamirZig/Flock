@@ -7,8 +7,7 @@ services:
       DATABASE_URL: mysql+pymysql://gs324819:ea5mlfsF6WYu@164.132.206.179/gs324819
       SECRET_KEY: "7KTYz3u3CGS5VBxtDcF5X2uW5w0W9gliCv0Nu-viQVY"
       ENVIRONMENT: "production"
-    depends_on:
-      - db
+      CORS_ORIGINS: http://85.198.100.22,http://localhost:5173
 
   frontend:
     build:
