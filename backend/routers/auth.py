@@ -53,17 +53,26 @@ def login(request: Request, response: Response, user: schemas.UserLogin, db: Ses
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+    # Determine expiration time
+    if user.remember_me:
+        # 30 days for "Remember Me"
+        expires_minutes = 30 * 24 * 60 
+    else:
+        # Default session duration
+        expires_minutes = auth.ACCESS_TOKEN_EXPIRE_MINUTES
+
+    access_token_expires = timedelta(minutes=expires_minutes)
     access_token = auth.create_access_token(
-        data={"sub": db_user.email, "role": db_user.role}, expires_delta=access_token_expires
+        data={"sub": db_user.email, "role": db_user.role}, 
+        expires_delta=access_token_expires
     )
     
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        max_age=auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        expires=auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        max_age=expires_minutes * 60,
+        expires=expires_minutes * 60, # Some browsers prefer expires, others max_age
         samesite="lax",
         secure=auth.settings.SECURE_COOKIES, 
     )

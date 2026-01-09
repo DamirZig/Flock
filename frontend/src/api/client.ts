@@ -5,7 +5,8 @@ export interface User {
   password?: string;
   full_name?: string;
   role?: string;
-  hashed_password?: string; // Included in backend model often
+  hashed_password?: string;
+  remember_me?: boolean;
 }
 
 export interface AuthResponse {

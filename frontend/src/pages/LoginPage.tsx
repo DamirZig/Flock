@@ -14,6 +14,7 @@ export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string, isVisible: boolean }>({
     type: 'success',
@@ -29,8 +30,8 @@ export const LoginPage: React.FC = () => {
     setAlert(prev => ({ ...prev, isVisible: false }));
 
     try {
-      // Backend sets the cookie. We don't need to manually store the token.
-      await loginUser({ email, password });
+      // Backend sets the cookie based on remember_me
+      await loginUser({ email, password, remember_me: rememberMe });
 
       // Update context: this will trigger a checkAuth() to verify the cookie
       login();
@@ -102,7 +103,18 @@ export const LoginPage: React.FC = () => {
             />
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between mt-2">
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/20 transition-all cursor-pointer"
+              />
+              <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">
+                Запомнить меня
+              </span>
+            </label>
             <button type="button" className="text-sm text-primary font-medium hover:text-primary-dark transition-colors">
               Забыли пароль?
             </button>
