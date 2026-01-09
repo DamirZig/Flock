@@ -4,7 +4,7 @@ from sqlalchemy import text
 from database import engine
 import models
 from config import settings
-from routers import auth, users
+from routers import auth, users, admin
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -46,6 +46,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Подключение роутеров
 app.include_router(auth.router)
 app.include_router(users.router)
+app.include_router(admin.router)
 
 @app.on_event("startup")
 def startup():

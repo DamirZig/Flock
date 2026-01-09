@@ -82,4 +82,9 @@ export const getMe = () => {
     method: 'GET',
   });
 };
-
+export const verifyPassword = (password: string) => {
+  return request<{ status: string; message: string }>('/admin/verify-password', {
+    method: 'POST',
+    body: JSON.stringify({ password }),
+  });
+};

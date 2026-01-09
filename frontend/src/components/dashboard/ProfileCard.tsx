@@ -22,11 +22,14 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
                 <div className="flex-1 pt-2">
                     <div className="flex items-center gap-4 mb-4">
                         <h2 className="text-2xl font-bold text-gray-900">{user?.full_name || 'Пользователь'}</h2>
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${user?.role === 'admin'
-                            ? 'bg-red-50 text-red-950 border border-red-200/50'
-                            : 'bg-primary/10 text-primary'
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold ${user?.role === 'owner' ? 'bg-purple-50 text-purple-950 border border-purple-200/50' :
+                                user?.role === 'admin' ? 'bg-red-50 text-red-950 border border-red-200/50' :
+                                    user?.role === 'curator' ? 'bg-blue-50 text-blue-950 border border-blue-200/50' :
+                                        'bg-primary/10 text-primary'
                             }`}>
-                            {user?.role === 'admin' ? 'Администратор' : 'Пользователь'}
+                            {user?.role === 'owner' ? 'Владелец' :
+                                user?.role === 'admin' ? 'Администратор' :
+                                    user?.role === 'curator' ? 'Куратор' : 'Пользователь'}
                         </span>
                     </div>
 

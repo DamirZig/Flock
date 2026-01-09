@@ -5,7 +5,7 @@ import { WelcomePage } from './pages/WelcomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { AdminPage } from './pages/AdminPage';
+import AdminPage from './pages/admin/AdminPage';
 import { CookieConsent } from './components/ui/CookieConsent';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -40,7 +40,9 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   // Пока идет загрузка, разрешаем рендер
   if (isLoading) return children;
 
-  if (!isAuthenticated || user?.role !== 'admin') {
+  const isAdminRole = ['curator', 'admin', 'owner'].includes(user?.role || '');
+
+  if (!isAuthenticated || !isAdminRole) {
     return <Navigate to="/" replace />;
   }
 

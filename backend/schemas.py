@@ -44,6 +44,16 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
+    from pydantic import field_validator
+    
+    @field_validator('role')
+    @classmethod
+    def validate_role(cls, v: str) -> str:
+        allowed_roles = ['user', 'curator', 'admin', 'owner']
+        if v not in allowed_roles:
+            raise ValueError(f'Role must be one of {allowed_roles}')
+        return v
+
 class Token(BaseModel):
     access_token: str
     token_type: str

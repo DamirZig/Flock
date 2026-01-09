@@ -34,10 +34,32 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
         raise credentials_exception
     return user
 
-def get_current_admin_user(current_user: schemas.User = Depends(get_current_user)):
-    if current_user.role != "admin":
+def get_current_active_user(current_user: schemas.User = Depends(get_current_user)):
+    if not current_user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
+def check_role_access(user_role: str, required_role: str):
+    hierarchy = {
+        "user": 0,
+        "curator": 1,
+        "admin": 2,
+        "owner": 3
+    }
+    if hierarchy.get(user_role, 0) < hierarchy.get(required_role, 0):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="The user doesn't have enough privileges"
         )
+
+def get_current_curator(current_user: schemas.User = Depends(get_current_active_user)):
+    check_role_access(current_user.role, "curator")
+    return current_user
+
+def get_current_admin_user(current_user: schemas.User = Depends(get_current_active_user)):
+    check_role_access(current_user.role, "admin")
+    return current_user
+
+def get_current_owner(current_user: schemas.User = Depends(get_current_active_user)):
+    check_role_access(current_user.role, "owner")
     return current_user

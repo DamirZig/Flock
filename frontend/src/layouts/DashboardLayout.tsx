@@ -32,7 +32,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
                 {/* Navigation */}
                 <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-                    {user?.role === 'admin' && (
+                    {['owner', 'admin', 'curator'].includes(user?.role || '') && (
                         <button
                             onClick={() => navigate('/admin')}
                             className="w-full flex items-center gap-3 px-4 py-3 text-red-600 bg-red-50/50 hover:bg-red-50 rounded-xl font-medium transition-colors border border-red-100/50"
