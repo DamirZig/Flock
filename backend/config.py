@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./sql_app.db"
     
     # CORS
+    # In .env, this can be a comma-separated string: "http://localhost:5173,https://myapp.com"
     CORS_ORIGINS: List[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173"
@@ -29,8 +30,27 @@ class Settings(BaseSettings):
         """
         return self.ENVIRONMENT.lower() == "production"
 
+    def __init__(self, **values):
+        super().__init__(**values)
+        self._check_security()
+
+    def _check_security(self):
+        if self.ENVIRONMENT.lower() == "production":
+            if self.SECRET_KEY == "your-secret-key-change-it":
+                print("WARNING: You are using the default SECRET_KEY in production! Please change it in your .env file.")
+            
+            # Simple check to enforce strong keys could go here
+            if len(self.SECRET_KEY) < 32:
+                print("WARNING: Your SECRET_KEY seems short. Consider using a stronger key (e.g. `openssl rand -hex 32`).")
+
     class Config:
         env_file = ".env"
         case_sensitive = True
+        # Allow parsing comma-separated strings for list fields (like CORS_ORIGINS)
+        @classmethod 
+        def parse_env_var(cls, field_name: str, raw_val: str) -> any:
+            if field_name == "CORS_ORIGINS":
+                return [origin.strip() for origin in raw_val.split(",")]
+            return cls.json_loads(raw_val)
 
 settings = Settings()
